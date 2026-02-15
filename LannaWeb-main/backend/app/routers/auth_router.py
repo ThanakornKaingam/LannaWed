@@ -1,43 +1,60 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from app.database import get_db
+from fastapi import APIRouter, Request, Depends
+from fastapi.responses import RedirectResponse
+from authlib.integrations.starlette_client import OAuth
+from app.config import settings
 from app.models.user import User
-from app.core.hashing import hash_password, verify_password
-from app.core.jwt_handler import create_access_token, create_refresh_token
+from app.database import SessionLocal
+from app.utils.security import create_access_token
+import os
 
-router = APIRouter(prefix="/auth", tags=["Auth"])
+router = APIRouter()
+
+oauth = OAuth()
+
+oauth.register(
+    name="google",
+    client_id=settings.GOOGLE_CLIENT_ID,
+    client_secret=settings.GOOGLE_CLIENT_SECRET,
+    server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+    client_kwargs={
+        "scope": "openid email profile"
+    }
+)
+
+@router.get("/google/login")
+async def login_via_google(request: Request):
+    redirect_uri = settings.GOOGLE_REDIRECT_URI
+    return await oauth.google.authorize_redirect(request, redirect_uri)
 
 
-@router.post("/register")
-def register(email: str, password: str, db: Session = Depends(get_db)):
-    existing = db.query(User).filter(User.email == email).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="Email already registered")
+@router.get("/google/callback")
+async def auth_callback(request: Request):
+    token = await oauth.google.authorize_access_token(request)
+    user_info = token.get("userinfo")
 
-    user = User(
-        email=email,
-        password=hash_password(password)
+    db = SessionLocal()
+
+    user = db.query(User).filter(User.email == user_info["email"]).first()
+
+    if not user:
+        user = User(
+            email=user_info["email"],
+            name=user_info["name"],
+            picture=user_info["picture"]
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+    jwt_token = create_access_token({"sub": user.email})
+
+    response = RedirectResponse(url=settings.FRONTEND_URL)
+    response.set_cookie(
+        key="access_token",
+        value=jwt_token,
+        httponly=True,
+        secure=True,
+        samesite="none"
     )
 
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-
-    return {"message": "User created"}
-
-
-@router.post("/login")
-def login(email: str, password: str, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == email).first()
-
-    if not user or not verify_password(password, user.password):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-
-    access_token = create_access_token({"sub": user.email})
-    refresh_token = create_refresh_token({"sub": user.email})
-
-    return {
-        "access_token": access_token,
-        "refresh_token": refresh_token,
-        "token_type": "bearer"
-    }
+    return response
