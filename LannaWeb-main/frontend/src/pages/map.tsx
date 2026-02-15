@@ -1,5 +1,11 @@
 import { useEffect, useRef } from "react"
 
+declare global {
+  interface Window {
+    google: any
+  }
+}
+
 export default function Map() {
   const mapRef = useRef<HTMLDivElement>(null)
 
@@ -8,22 +14,16 @@ export default function Map() {
       if (!window.google) return
 
       new window.google.maps.Map(mapRef.current!, {
-        center: { lat: 18.7883, lng: 98.9853 }, // เชียงใหม่
+        center: { lat: 18.7883, lng: 98.9853 },
         zoom: 12,
       })
     }
 
-    if (!document.getElementById("google-maps-script")) {
-      const script = document.createElement("script")
-      script.id = "google-maps-script"
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
-      script.async = true
-      script.defer = true
-      script.onload = loadMap
-      document.body.appendChild(script)
-    } else {
-      loadMap()
-    }
+    const script = document.createElement("script")
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
+    script.async = true
+    script.onload = loadMap
+    document.body.appendChild(script)
   }, [])
 
   return (
