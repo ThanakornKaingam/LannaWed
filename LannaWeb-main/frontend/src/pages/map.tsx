@@ -1,29 +1,38 @@
 import { useEffect, useRef } from "react"
 
-declare global {
-  interface Window {
-    google: any
-  }
-}
-
 export default function Map() {
   const mapRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const loadMap = () => {
-      if (!window.google) return
+    if (typeof window === "undefined") return
 
-      new window.google.maps.Map(mapRef.current!, {
-        center: { lat: 18.7883, lng: 98.9853 },
+    const initMap = () => {
+      const google = (window as any).google
+      if (!google || !mapRef.current) return
+
+      new google.maps.Map(mapRef.current, {
+        center: { lat: 18.7883, lng: 98.9853 }, // เชียงใหม่
         zoom: 12,
       })
+    }
+
+    // ถ้าโหลดแล้ว
+    if ((window as any).google) {
+      initMap()
+      return
     }
 
     const script = document.createElement("script")
     script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
     script.async = true
-    script.onload = loadMap
-    document.body.appendChild(script)
+    script.defer = true
+    script.onload = initMap
+
+    document.head.appendChild(script)
+
+    return () => {
+      script.remove()
+    }
   }, [])
 
   return (
