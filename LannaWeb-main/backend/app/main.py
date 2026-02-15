@@ -44,3 +44,7 @@ app.include_router(predict_router)
 @app.get("/")
 def root():
     return {"status": "API Running"}
+    
+@app.get("/ping")
+def ping():
+    return {"pong": True}
