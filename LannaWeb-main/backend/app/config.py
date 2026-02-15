@@ -1,9 +1,11 @@
 import os
 from dotenv import load_dotenv
+from typing import List
 
-# โหลด .env เฉพาะตอน local
+# โหลด .env เฉพาะตอน local เท่านั้น
 if os.path.exists(".env"):
     load_dotenv()
+
 
 class Settings:
     # ========================
@@ -12,22 +14,24 @@ class Settings:
     ENV: str = os.getenv("ENV", "dev")
     DEBUG: bool = os.getenv("DEBUG", "false").lower() == "true"
 
-  # ==========================
-# Database
-# ==========================
-
+    # ========================
+    # 🗄 Database
+    # ========================
     DATABASE_URL: str = os.getenv(
-    "DATABASE_URL",
-    "sqlite:///./app.db"
+        "DATABASE_URL",
+        "sqlite:///./app.db"
     )
+
     # ========================
     # 🔐 JWT
     # ========================
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "supersecretkey")
+    SECRET_KEY: str = os.getenv("SECRET_KEY")
     ALGORITHM: str = "HS256"
+
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(
         os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60)
     )
+
     REFRESH_TOKEN_EXPIRE_DAYS: int = int(
         os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", 7)
     )
@@ -63,7 +67,7 @@ class Settings:
     # ========================
     # 🌐 CORS
     # ========================
-    ALLOWED_ORIGINS: list = os.getenv(
+    ALLOWED_ORIGINS: List[str] = os.getenv(
         "ALLOWED_ORIGINS",
         "*"
     ).split(",")
@@ -73,5 +77,13 @@ class Settings:
     # ========================
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
 
+    # ========================
+    # 🔎 Validate Important Config
+    # ========================
+    def validate(self):
+        if not self.SECRET_KEY:
+            raise ValueError("SECRET_KEY is required in production environment.")
+
 
 settings = Settings()
+settings.validate()
