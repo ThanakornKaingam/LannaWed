@@ -77,9 +77,9 @@ export default function Home() {
 
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto px-6">
             {[
-              "Zanthoxylum limonella",
-              "Tupistra albiflora",
-              "Para cress"
+              "มะแข่น",
+              "นางแลว",
+              "ผักเผ็ด"
             ].map((name, i) => (
               <motion.div
                 key={i}
