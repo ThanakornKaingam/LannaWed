@@ -1,13 +1,20 @@
 import os
 from dotenv import load_dotenv
 from typing import List
+from pathlib import Path
 
-# โหลด .env เฉพาะตอน local เท่านั้น
-if os.path.exists(".env"):
-    load_dotenv()
+# ========================
+# Load Environment File
+# ========================
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+ENV_PATH = BASE_DIR / ".env.dev"
+
+if ENV_PATH.exists():
+    load_dotenv(dotenv_path=ENV_PATH)
 
 
 class Settings:
+
     # ========================
     # 🌍 Environment
     # ========================
@@ -44,27 +51,6 @@ class Settings:
     GOOGLE_REDIRECT_URI: str = os.getenv("GOOGLE_REDIRECT_URI", "")
 
     # ========================
-    # 🗺 Google Maps
-    # ========================
-    GOOGLE_MAPS_API_KEY: str = os.getenv("GOOGLE_MAPS_API_KEY", "")
-
-    # ========================
-    # 🤖 AI Model
-    # ========================
-    MODEL_PATH: str = os.getenv(
-        "MODEL_PATH",
-        "app/ml/MobileNetV3-Large.pt"
-    )
-
-    # ========================
-    # 📂 File Upload
-    # ========================
-    UPLOAD_FOLDER: str = os.getenv("UPLOAD_FOLDER", "uploads/")
-    MAX_UPLOAD_SIZE_MB: int = int(
-        os.getenv("MAX_UPLOAD_SIZE_MB", 10)
-    )
-
-    # ========================
     # 🌐 CORS
     # ========================
     ALLOWED_ORIGINS: List[str] = os.getenv(
@@ -73,16 +59,11 @@ class Settings:
     ).split(",")
 
     # ========================
-    # 🧾 Logging
-    # ========================
-    LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
-
-    # ========================
-    # 🔎 Validate Important Config
+    # Validate Critical Config
     # ========================
     def validate(self):
-        if not self.SECRET_KEY:
-            raise ValueError("SECRET_KEY is required in production environment.")
+        if self.ENV == "prod" and not self.SECRET_KEY:
+            raise ValueError("SECRET_KEY is required in production.")
 
 
 settings = Settings()
