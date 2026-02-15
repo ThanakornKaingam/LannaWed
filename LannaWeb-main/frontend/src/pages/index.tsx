@@ -1,130 +1,109 @@
-import React, { useState } from "react";
+import Link from "next/link";
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-
-export default function Classify() {
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [result, setResult] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return;
-
-    const selectedFile = e.target.files[0];
-    setFile(selectedFile);
-    setPreview(URL.createObjectURL(selectedFile));
-    setResult(null);
-    setError("");
-  };
-
-  const handleUpload = async () => {
-    if (!file) {
-      setError("กรุณาเลือกรูปก่อน");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      setLoading(true);
-      setError("");
-      setResult(null);
-
-      const res = await fetch(`${API_BASE}/predict/`, {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || "Server error");
-      }
-
-      const data = await res.json();
-      setResult(data);
-    } catch (err: any) {
-      setError(err.message || "เกิดข้อผิดพลาดในการอัปโหลด");
-    } finally {
-      setLoading(false);
-    }
-  };
-
+export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center p-6">
-      <div className="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-lg">
+    <div className="bg-gradient-to-br from-green-900 via-green-800 to-emerald-700 text-white">
 
-        <h1 className="text-3xl font-bold mb-6 text-center text-green-700">
-          🌿 Vegetable Classification
-        </h1>
-
-        {/* File Input */}
-        <div className="mb-4">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="w-full border rounded-lg p-2"
-          />
+      {/* ================= NAVBAR ================= */}
+      <nav className="flex justify-between items-center px-10 py-6">
+        <h1 className="text-2xl font-bold text-green-300">🌿 LannaVeg</h1>
+        <div className="space-x-6 text-sm">
+          <Link href="/classify" className="hover:text-green-300">
+            Classify
+          </Link>
+          <Link href="/map" className="hover:text-green-300">
+            Map
+          </Link>
+          <Link href="/login" className="hover:text-green-300">
+            Login
+          </Link>
         </div>
+      </nav>
 
-        {/* Preview */}
-        {preview && (
-          <div className="mb-4 text-center">
-            <img
-              src={preview}
-              alt="preview"
-              className="mx-auto rounded-lg max-h-64 object-cover shadow"
-            />
+      {/* ================= HERO ================= */}
+      <section className="text-center py-24 px-6">
+        <h2 className="text-5xl font-extrabold mb-6">
+          ระบบจำแนกผักพื้นเมืองล้านนา
+        </h2>
+        <p className="text-lg max-w-2xl mx-auto text-green-200 mb-10">
+          อัปโหลดภาพเพื่อให้ AI วิเคราะห์ชนิดของผักพื้นเมืองภาคเหนือ
+          พร้อมข้อมูลโภชนาการและแหล่งที่มา
+        </p>
+
+        <div className="flex justify-center gap-6">
+          <Link
+            href="/classify"
+            className="bg-green-500 hover:bg-green-600 px-8 py-4 rounded-xl font-semibold shadow-lg transition"
+          >
+            🔍 เริ่มจำแนกผัก
+          </Link>
+
+          <Link
+            href="/map"
+            className="border border-green-300 hover:bg-green-600 px-8 py-4 rounded-xl font-semibold transition"
+          >
+            🗺 ดูแผนที่ผักพื้นเมือง
+          </Link>
+        </div>
+      </section>
+
+      {/* ================= FEATURES ================= */}
+      <section className="bg-white text-gray-800 py-20 px-10 rounded-t-3xl">
+        <h3 className="text-3xl font-bold text-center mb-16">
+          ระบบของเราทำอะไรได้บ้าง
+        </h3>
+
+        <div className="grid md:grid-cols-3 gap-10 max-w-6xl mx-auto">
+          <div className="bg-gray-50 p-8 rounded-2xl shadow hover:shadow-xl transition">
+            <h4 className="text-xl font-semibold mb-4 text-green-600">
+              🤖 AI Accuracy
+            </h4>
+            <p>
+              ใช้ Deep Learning วิเคราะห์ภาพผักพื้นเมือง
+              พร้อมแสดงความมั่นใจ (Confidence Score)
+            </p>
           </div>
-        )}
 
-        {/* Predict Button */}
-        <button
-          onClick={handleUpload}
-          disabled={loading}
-          className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg transition font-semibold"
+          <div className="bg-gray-50 p-8 rounded-2xl shadow hover:shadow-xl transition">
+            <h4 className="text-xl font-semibold mb-4 text-green-600">
+              📍 Google Maps Integration
+            </h4>
+            <p>
+              แสดงตำแหน่งพื้นที่ที่พบผักพื้นเมืองในภาคเหนือ
+              พร้อมข้อมูลจังหวัด
+            </p>
+          </div>
+
+          <div className="bg-gray-50 p-8 rounded-2xl shadow hover:shadow-xl transition">
+            <h4 className="text-xl font-semibold mb-4 text-green-600">
+              🥬 Nutrition Information
+            </h4>
+            <p>
+              แสดงข้อมูลคุณค่าทางโภชนาการ
+              และสรรพคุณของผักแต่ละชนิด
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ================= CALL TO ACTION ================= */}
+      <section className="py-20 text-center">
+        <h3 className="text-3xl font-bold mb-6">
+          พร้อมเริ่มใช้งานหรือยัง?
+        </h3>
+
+        <Link
+          href="/classify"
+          className="bg-white text-green-800 px-10 py-4 rounded-xl font-semibold shadow hover:bg-green-200 transition"
         >
-          {loading ? "🔄 AI กำลังวิเคราะห์..." : "🚀 Predict"}
-        </button>
+          🚀 เริ่มใช้งานตอนนี้
+        </Link>
+      </section>
 
-        {/* Error */}
-        {error && (
-          <div className="mt-4 text-red-500 text-center font-medium">
-            {error}
-          </div>
-        )}
-
-        {/* Result */}
-        {result && (
-          <div className="mt-6 bg-gray-50 p-4 rounded-lg border">
-            <h3 className="font-semibold mb-2 text-center text-green-700">
-              🎯 Prediction Result
-            </h3>
-
-            <div className="text-center text-lg font-bold">
-              {result.class_name}
-            </div>
-
-            <div className="text-center text-sm mb-3">
-              Confidence: {(result.confidence * 100).toFixed(2)}%
-            </div>
-
-            {/* Progress Bar */}
-            <div className="w-full bg-gray-200 rounded-full h-4">
-              <div
-                className="bg-green-500 h-4 rounded-full transition-all duration-500"
-                style={{
-                  width: `${(result.confidence * 100).toFixed(2)}%`,
-                }}
-              ></div>
-            </div>
-          </div>
-        )}
-      </div>
+      {/* ================= FOOTER ================= */}
+      <footer className="text-center py-10 bg-green-900 text-green-300 text-sm">
+        © 2026 LannaVeg Project | University of Phayao
+      </footer>
     </div>
   );
 }
