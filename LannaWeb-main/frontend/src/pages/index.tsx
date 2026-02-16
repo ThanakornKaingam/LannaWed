@@ -5,6 +5,12 @@ import { motion } from "framer-motion";
 export default function Home() {
   const [dark, setDark] = useState(true);
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+  const loginWithGoogle = () => {
+    window.location.href = `${API_URL}/google/login`;
+  };
+  
   return (
     <div className={dark ? "dark" : ""}>
       <div className="min-h-screen transition-all duration-500 
@@ -12,20 +18,28 @@ export default function Home() {
         dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 text-white">
 
         {/* ================= NAVBAR ================= */}
-        <nav className="flex justify-between items-center px-10 py-6">
-          <h1 className="text-2xl font-bold text-green-300">🌿 LannaVeg</h1>
+      <nav className="flex justify-between items-center px-10 py-6">
+  <h1 className="text-2xl font-bold text-green-300">🌿 LannaVeg</h1>
 
-          <div className="space-x-6 text-sm flex items-center">
-            <Link href="/classify">Classify</Link>
-            <Link href="/map">Map</Link>
-            <button
-              onClick={() => setDark(!dark)}
-              className="bg-white text-black dark:bg-gray-700 dark:text-white px-4 py-2 rounded-lg"
-            >
-              {dark ? "🌙 Dark" : "☀ Light"}
-            </button>
-          </div>
-        </nav>
+  <div className="space-x-6 text-sm flex items-center">
+    <Link href="/classify">Classify</Link>
+    <Link href="/map">Map</Link>
+
+    <button
+      onClick={loginWithGoogle}
+      className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg text-white"
+    >
+      Login
+    </button>
+
+    <button
+      onClick={() => setDark(!dark)}
+      className="bg-white text-black dark:bg-gray-700 dark:text-white px-4 py-2 rounded-lg"
+    >
+      {dark ? "🌙 Dark" : "☀ Light"}
+    </button>
+  </div>
+</nav>
 
         {/* ================= HERO ================= */}
         <section className="text-center py-24 px-6">
