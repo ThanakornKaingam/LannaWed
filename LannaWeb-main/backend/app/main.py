@@ -19,11 +19,14 @@ app = FastAPI(
 # =========================
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # ชั่วคราวเพื่อทดสอบ
+    allow_origins=[
+        "https://frontend-zaax.onrender.com"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 
 # =========================
