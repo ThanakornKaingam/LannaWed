@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import Base, engine
 from app.config import settings
 from app.routers.predict_router import router as predict_router
-
+from app.routers.auth_router import router as auth_router
 
 # =========================
 # Create App
@@ -39,7 +39,7 @@ Base.metadata.create_all(bind=engine)
 # Routers
 # =========================
 app.include_router(predict_router)
-
+app.include_router(auth_router)
 
 # =========================
 # Health Check
