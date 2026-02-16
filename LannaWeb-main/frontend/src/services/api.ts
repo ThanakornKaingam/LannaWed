@@ -7,6 +7,7 @@ export const classifyImage = async (file: File) => {
   const res = await fetch(`${API_URL}/predict`, {
     method: "POST",
     body: formData,
+    credentials: "include",  
   });
 
   if (!res.ok) {
